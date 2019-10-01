@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: csc8104-states-app
+  labels:
+    app: upstream-example
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upstream-example
+        name: csc8104-states-app 
+    spec:
+      containers:
+        - name: csc8104-states-app
+          image: adamcattermole/csc8104-states:latest
+          imagePullPolicy: 'Always'
+          env:
+            - name: OPENSHIFT_NODEJS_PORT
+              value: "8080" 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: upstream-example
+    name: csc8104-states-app
+  name: csc8104-states-app
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: csc8104-states-app
+---
+apiVersion: v1
+kind: Route
+metadata:
+  labels:
+    app: upstream-example
+    name: csc8104-states-app
+  name: csc8104-states-app
+spec:
+  host: csc8104-states.b9ad.pro-us-east-1.openshiftapps.com
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: csc8104-states-app
